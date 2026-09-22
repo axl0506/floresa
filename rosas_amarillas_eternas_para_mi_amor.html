@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Mi Amor - Mis Rosas Amarillas Eternas 💛</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fffdf0 0%, #fef9c3 35%, #fef08a 70%, #fef9c3 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Canvas overlay for falling petals */
+        #petals-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Ambient Glow & Shadow utilities */
+        .glow-gold {
+            box-shadow: 0 0 35px rgba(234, 179, 8, 0.45), 0 0 15px rgba(250, 204, 21, 0.35);
+        }
+
+        .glow-soft-yellow {
+            filter: drop-shadow(0 0 18px rgba(250, 204, 21, 0.75));
+        }
+
+        .romantic-lights {
+            box-shadow: inset 0 0 120px rgba(245, 158, 11, 0.3), inset 0 0 60px rgba(234, 179, 8, 0.25);
+        }
+
+        /* Interactive Rose Bloom hover effect */
+        .rose-node {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+            cursor: pointer;
+        }
+
+        .rose-node:hover {
+            transform: scale(1.15) translateY(-5px);
+            filter: drop-shadow(0 0 22px #eab308);
+        }
+
+        /* Custom Scrollbar for Love Letter */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fef9c3;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #eab308;
+            border-radius: 10px;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1.2deg); }
+        }
+
+        .animate-float {
+            animation: floatSlow 5s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+
+        .animate-pulse-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="relative text-amber-950 flex flex-col min-h-screen selection:bg-yellow-300 selection:text-amber-900">
+
+    <!-- Interactive Falling Petals Canvas -->
+    <canvas id="petals-canvas"></canvas>
+
+    <!-- Romantic Ambient Glow Overlay -->
+    <div id="ambient-overlay" class="fixed inset-0 pointer-events-none transition-opacity duration-1000 opacity-0 z-0"></div>
+
+    <!-- Header Banner -->
+    <header class="relative z-20 text-center pt-8 pb-4 px-4 max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 bg-white/85 backdrop-blur-md px-5 py-2 rounded-full border border-yellow-300 shadow-sm mb-4">
+            <i class="fa-solid fa-sun text-amber-500"></i>
+            <span class="text-amber-900 text-xs sm:text-sm font-semibold tracking-wider uppercase">
+                21 de Septiembre • Primavera en el Corazón
+            </span>
+        </div>
+        <h1 class="font-serif-title text-3xl sm:text-5xl lg:text-6xl font-bold text-amber-950 tracking-tight mb-2">
+            Rosas Amarillas para <span class="text-amber-600 font-handwriting text-5xl sm:text-7xl lg:text-8xl block sm:inline">Mi Amor</span>
+        </h1>
+        <p class="font-handwriting text-2xl sm:text-3xl text-amber-800 mt-2">
+            "No existen ramos en ninguna florería que duren tanto como mi amor por ti..."
+        </p>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-20 max-w-4xl mx-auto px-4 py-4 flex-grow w-full flex flex-col items-center">
+
+        <!-- Controls Toolbar -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-8 w-full">
+            <button onclick="toggleMusic()" id="btn-music" class="bg-white/90 backdrop-blur-md border border-yellow-300 text-amber-900 hover:bg-yellow-100 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition flex items-center gap-2">
+                <i id="music-icon" class="fa-solid fa-music text-amber-500"></i> 
+                <span id="music-text">♫ Reproducción Melódica Dulce</span>
+            </button>
+            <button onclick="toggleLights()" id="btn-lights" class="bg-white/90 backdrop-blur-md border border-yellow-300 text-amber-900 hover:bg-yellow-100 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-lightbulb text-yellow-500"></i> Luz Cálida
+            </button>
+            <button onclick="sendVirtualHug()" class="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-white px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-md transition flex items-center gap-2 transform active:scale-95">
+                <i class="fa-solid fa-heart text-white"></i> Enviarle un Abrazo Virtual
+            </button>
+        </div>
+
+        <!-- SECTION 1: Ultra Realistic Golden Bouquet -->
+        <section class="w-full bg-white/75 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-yellow-200 shadow-xl mb-10 flex flex-col items-center text-center">
+            
+            <div class="inline-block bg-yellow-100 px-4 py-1 rounded-full text-xs font-bold text-amber-800 uppercase tracking-widest mb-2">
+                Toca cualquiera de las 5 rosas amarillas
+            </div>
+            <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-amber-950 mb-2">
+                Nuestro Ramo Eterno
+            </h2>
+            <p class="text-amber-800/90 text-sm sm:text-base max-w-lg mb-4">
+                Cada rosa de este ramo guarda un recuerdo sagrado de nuestra historia de amor.
+            </p>
+
+            <!-- Vector SVG Bouquet Container -->
+            <div class="relative my-2 py-4 flex justify-center items-center w-full animate-float">
+                <svg class="w-80 h-80 sm:w-96 sm:h-96 glow-soft-yellow" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Realistic Rose Gradient Definitions -->
+                        <radialGradient id="roseCore" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#fff59d"/>
+                            <stop offset="40%" stop-color="#fbc02d"/>
+                            <stop offset="85%" stop-color="#f57f17"/>
+                            <stop offset="100%" stop-color="#e65100"/>
+                        </radialGradient>
+
+                        <linearGradient id="petalGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#fffde7"/>
+                            <stop offset="50%" stop-color="#fdd835"/>
+                            <stop offset="100%" stop-color="#f57f17"/>
+                        </linearGradient>
+
+                        <linearGradient id="petalGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#fff9c4"/>
+                            <stop offset="60%" stop-color="#ffee58"/>
+                            <stop offset="100%" stop-color="#f57c00"/>
+                        </linearGradient>
+
+                        <linearGradient id="wrapperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#fffde7"/>
+                            <stop offset="50%" stop-color="#fef08a"/>
+                            <stop offset="100%" stop-color="#fde047"/>
+                        </linearGradient>
+
+                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#78350f" flood-opacity="0.25"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Bouquet Wrapping paper & silk ribbon -->
+                    <path d="M140 310 L200 380 L260 310 L290 220 L110 220 Z" fill="url(#wrapperGrad)" stroke="#f59e0b" stroke-width="2.5" filter="url(#shadow)"/>
+                    <path d="M160 220 L200 380 L240 220" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    
+                    <!-- Ribbon Bow -->
+                    <path d="M175 290 C140 265, 130 295, 160 300 C180 305, 200 290, 200 290 Z" fill="#f59e0b" filter="url(#shadow)"/>
+                    <path d="M225 290 C260 265, 270 295, 240 300 C220 305, 200 290, 200 290 Z" fill="#f59e0b" filter="url(#shadow)"/>
+                    <circle cx="200" cy="290" r="7" fill="#b45309"/>
+
+                    <!-- Green Stems & Leaves -->
+                    <path d="M150 170 Q180 230 195 280" stroke="#15803d" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M200 160 L200 280" stroke="#16a34a" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M250 170 Q220 230 205 280" stroke="#15803d" stroke-width="6" stroke-linecap="round"/>
+                    
+                    <!-- Leaves -->
+                    <path d="M130 210 C100 200, 95 230, 125 230 Z" fill="#22c55e" filter="url(#shadow)"/>
+                    <path d="M270 210 C300 200, 305 230, 275 230 Z" fill="#22c55e" filter="url(#shadow)"/>
+
+                    <!-- ROSE 1 (Center Main) -->
+                    <g class="rose-node" onclick="showRoseMemory(0)" transform="translate(200, 150)">
+                        <path d="M-40 0 C-40 -35, 40 -35, 40 0 C40 35, -40 35, -40 0 Z" fill="url(#petalGrad1)" filter="url(#shadow)"/>
+                        <path d="M-30 -15 C-15 -40, 15 -40, 30 -15 C40 10, -10 35, -30 -15 Z" fill="url(#petalGrad2)"/>
+                        <path d="M-20 -10 C-10 -25, 10 -25, 20 -10 C25 8, -5 22, -20 -10 Z" fill="url(#roseCore)"/>
+                        <circle cx="0" cy="0" r="8" fill="#fff59d"/>
+                        <circle cx="4" cy="-5" r="2" fill="#ffffff" opacity="0.8"/> <!-- Dew drop -->
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#78350f" font-weight="bold">1</text>
+                    </g>
+
+                    <!-- ROSE 2 (Left) -->
+                    <g class="rose-node" onclick="showRoseMemory(1)" transform="translate(130, 170)">
+                        <path d="M-35 0 C-35 -30, 35 -30, 35 0 C35 30, -35 30, -35 0 Z" fill="url(#petalGrad2)" filter="url(#shadow)"/>
+                        <path d="M-25 -12 C-12 -32, 12 -32, 25 -12 C32 8, -8 28, -25 -12 Z" fill="url(#roseCore)"/>
+                        <circle cx="0" cy="0" r="6" fill="#fff59d"/>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#78350f" font-weight="bold">2</text>
+                    </g>
+
+                    <!-- ROSE 3 (Right) -->
+                    <g class="rose-node" onclick="showRoseMemory(2)" transform="translate(270, 170)">
+                        <path d="M-35 0 C-35 -30, 35 -30, 35 0 C35 30, -35 30, -35 0 Z" fill="url(#petalGrad2)" filter="url(#shadow)"/>
+                        <path d="M-25 -12 C-12 -32, 12 -32, 25 -12 C32 8, -8 28, -25 -12 Z" fill="url(#roseCore)"/>
+                        <circle cx="0" cy="0" r="6" fill="#fff59d"/>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#78350f" font-weight="bold">3</text>
+                    </g>
+
+                    <!-- ROSE 4 (Top Upper) -->
+                    <g class="rose-node" onclick="showRoseMemory(3)" transform="translate(200, 85)">
+                        <path d="M-32 0 C-32 -28, 32 -28, 32 0 C32 28, -32 28, -32 0 Z" fill="url(#petalGrad1)" filter="url(#shadow)"/>
+                        <path d="M-22 -10 C-10 -28, 10 -28, 22 -10 C28 6, -6 24, -22 -10 Z" fill="url(#roseCore)"/>
+                        <circle cx="0" cy="0" r="6" fill="#fff59d"/>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#78350f" font-weight="bold">4</text>
+                    </g>
+
+                    <!-- ROSE 5 (Bottom Inner) -->
+                    <g class="rose-node" onclick="showRoseMemory(4)" transform="translate(200, 215)">
+                        <path d="M-30 0 C-30 -25, 30 -25, 30 0 C30 25, -30 25, -30 0 Z" fill="url(#petalGrad2)" filter="url(#shadow)"/>
+                        <path d="M-20 -8 C-8 -22, 8 -22, 20 -8 C24 5, -5 20, -20 -8 Z" fill="url(#roseCore)"/>
+                        <circle cx="0" cy="0" r="5" fill="#fff59d"/>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#78350f" font-weight="bold">5</text>
+                    </g>
+
+                    <!-- Golden Sparkles -->
+                    <circle cx="90" cy="110" r="3" fill="#f59e0b" class="animate-ping"/>
+                    <circle cx="310" cy="105" r="2.5" fill="#facc15" class="animate-ping"/>
+                    <circle cx="200" cy="30" r="3.5" fill="#eab308" class="animate-ping"/>
+                </svg>
+            </div>
+
+            <!-- Memory Display Banner below Bouquet -->
+            <div id="memory-box" class="w-full max-w-xl bg-yellow-50/90 border border-yellow-300 rounded-2xl p-5 mt-2 transition-all duration-300 shadow-sm">
+                <span class="text-xs font-bold text-amber-700 uppercase tracking-widest block mb-1" id="memory-tag">
+                    ✨ Haz clic en cualquiera de las 5 rosas marcadas
+                </span>
+                <p class="font-serif-title text-base sm:text-lg text-amber-950 italic" id="memory-text">
+                    "Toca una rosa para descubrir el secreto y mensaje de amor que guarda para ti..."
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 2: The Deep Love Letter Portal -->
+        <section class="w-full bg-white/85 backdrop-blur-md rounded-3xl p-6 sm:p-12 border border-yellow-200 shadow-xl mb-10 relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-yellow-200/40 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-amber-300/30 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pb-4 border-b border-yellow-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-amber-600 text-2xl shadow-inner">
+                            <i class="fa-solid fa-scroll"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-amber-600 uppercase tracking-widest">Carta de Primavera</span>
+                            <h3 class="font-serif-title text-2xl font-bold text-amber-950">De mi Corazón para Ti</h3>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-yellow-100 text-amber-800 font-semibold px-4 py-1.5 rounded-full border border-yellow-200">
+                        21 de Septiembre
+                    </span>
+                </div>
+
+                <div class="space-y-5 text-amber-950 leading-relaxed font-serif-title text-base sm:text-lg">
+                    <p class="font-handwriting text-3xl sm:text-4xl text-amber-800 font-bold">
+                        Mi Amor:
+                    </p>
+                    
+                    <p>
+                        Hoy es 21 de septiembre, el día en que la primavera comienza y las personas salen a buscar arreglos en cada florería para regalar rosas amarillas. Hoy no tengo dinero para entregarte un ramo físico, pero tengo el alma desbordada de amor por ti y la firme certeza de que no podía dejar pasar este día sin entregarte algo verdaderamente especial.
+                    </p>
+
+                    <p>
+                        Por eso he creado para ti este ramo virtual, construido pétalo a pétalo, para recordarte lo infinitamente valiosa que eres en mi vida.
+                    </p>
+
+                    <p>
+                        Aún me emociono al recordar cómo empezó lo nuestro. Nos enamoramos de una manera insólita durante aquellos días inciertos de la pandemia. Cuando al fin nos conocimos en persona, el enamoramiento no hizo más que crecer hasta hacernos oficiales. No pasó mucho tiempo porque supimos que éramos el uno para el otro: nos casamos y trajimos al mundo a nuestras 2 hermosas hijas, quienes son la luz de nuestro hogar.
+                    </p>
+
+                    <p class="bg-yellow-50/90 p-5 rounded-2xl border-l-4 border-amber-500 italic text-amber-900 shadow-sm">
+                        "Eres una mujer extraordinariamente humilde y noble. Sé que muchas veces cometo errores, pero tu amor e inteligencia siempre saben cómo guiarme, hablarme y ayudarme a solucionarlo todo para salir adelante juntos."
+                    </p>
+
+                    <p>
+                        Las flores de florería se marchitan en unos días, pero este detalle que te dedico hoy estará aquí para siempre, recordándote que mi amor por ti florece cada día más fuerte.
+                    </p>
+
+                    <div class="pt-6 border-t border-yellow-200/80 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <span class="text-xs text-amber-700 italic">
+                            Eternamente enamorado de ti.
+                        </span>
+                        <p class="font-handwriting text-3xl text-amber-800 font-bold">
+                            Tu esposo que te ama con todo su ser ❤️
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Eternal Love Counter -->
+        <section class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white rounded-3xl p-8 shadow-xl text-center mb-10 relative overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 text-yellow-300/20 text-9xl pointer-events-none">
+                <i class="fa-solid fa-infinity"></i>
+            </div>
+            
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <span class="inline-block bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+                    Nuestra Promesa de Vida
+                </span>
+                <h3 class="font-serif-title text-2xl sm:text-4xl font-bold mb-3">
+                    Un Amor que Nunca se Marchita
+                </h3>
+                <p class="text-yellow-100 text-sm sm:text-base leading-relaxed mb-6">
+                    Gracias por ser la esposa, madre y compañera perfecta. Este ramo es símbolo de nuestro compromiso eterno.
+                </p>
+
+                <div class="inline-flex items-center justify-center gap-3 bg-white/15 backdrop-blur-md px-6 py-3.5 rounded-2xl border border-white/30 shadow-inner">
+                    <i class="fa-solid fa-clock-rotate-left text-yellow-200 text-2xl"></i>
+                    <div class="text-left">
+                        <span class="text-xs text-yellow-100 block uppercase tracking-wider">Duración de mi Amor</span>
+                        <span class="font-bold text-yellow-200 text-lg sm:text-xl">
+                            Por Toda la Eternidad ✨
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Virtual Hug -->
+    <div id="hug-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-2 border-yellow-300 text-center transform scale-90 transition-transform duration-300" id="hug-modal-card">
+            <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500 text-3xl shadow-inner glow-gold">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            <span class="text-xs font-bold text-amber-600 uppercase tracking-widest block mb-1">Para Mi Amor</span>
+            <h4 class="font-serif-title text-2xl font-bold text-amber-950 mb-3">¡Te Envío un Abrazo Gigante!</h4>
+            <p class="text-amber-800 text-sm sm:text-base italic mb-6 leading-relaxed">
+                "Cierra los ojos un segundo y siente este abrazo apretado. Gracias por estar a mi lado, por nuestras 2 hijas y por ser el regalo más hermoso de mi vida."
+            </p>
+            <button onclick="closeHugModal()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition w-full">
+                Recibido en mi corazón 💛
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative z-20 text-center py-6 border-t border-yellow-200 bg-white/50 backdrop-blur-sm">
+        <p class="text-xs sm:text-sm text-amber-900 font-medium">
+            Creado con amor infinito para Mi Amor • 21 de Septiembre 🌼
+        </p>
+    </footer>
+
+    <script>
+        /* --- 1. PETALS & SPARKLING LIGHT CANVAS --- */
+        const canvas = document.getElementById('petals-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const petalCount = 45;
+        const petals = [];
+
+        class Petal {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.size = Math.random() * 12 + 8;
+                this.speedY = Math.random() * 1.5 + 0.7;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.angle = Math.random() * 360;
+                this.spin = (Math.random() - 0.5) * 2;
+                const colors = ['#fde047', '#facc15', '#eab308', '#fef08a', '#fef9c3'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.opacity = Math.random() * 0.7 + 0.3;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y * 0.01) + this.speedX;
+                this.angle += this.spin;
+
+                if (this.y > height + 20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.angle * Math.PI) / 180);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size / 2, -this.size / 2, -this.size, this.size / 3, 0, this.size);
+                ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size / 2, 0, 0);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < petalCount; i++) {
+            petals.push(new Petal());
+        }
+
+        function animatePetals() {
+            ctx.clearRect(0, 0, width, height);
+            petals.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animatePetals);
+        }
+
+        animatePetals();
+
+        /* --- 2. ROSE MEMORIES DATA & DISPLAY --- */
+        const roseMemories = [
+            {
+                tag: "Rosa 1 • Nuestro Amor en Pandemia",
+                text: "En medio del encierro y la incertidumbre de la pandemia, nacio entre nosotros un amor puro e insólito que superó toda distancia."
+            },
+            {
+                tag: "Rosa 2 • Nuestro Matrimonio",
+                text: "Conocernos en persona solo hizo crecer el enamoramiento. Decidimos casarnos porque supimos de inmediato que éramos el uno para el otro."
+            },
+            {
+                tag: "Rosa 3 • Nuestras 2 Hijas",
+                text: "De nuestro amor bendecido nacieron nuestras 2 hermosas hijas, la mayor alegría que ilumina cada rincón de nuestro hogar."
+            },
+            {
+                tag: "Rosa 4 • Tu Humildad y Sabiduría",
+                text: "Eres una mujer humilde, noble y comprensiva. Tu presencia le da calma y dulzura a mi vida todos los días."
+            },
+            {
+                tag: "Rosa 5 • Solucionar Todo Juntos",
+                text: "Sé que cometo errores, pero tú siempre sabes cómo aconsejarme, enseñarme y ayudarme a corregir para seguir adelante unidos."
+            }
+        ];
+
+        function showRoseMemory(index) {
+            const memoryBox = document.getElementById('memory-box');
+            const memoryTag = document.getElementById('memory-tag');
+            const memoryText = document.getElementById('memory-text');
+
+            memoryBox.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                memoryTag.innerText = `✨ ${roseMemories[index].tag}`;
+                memoryText.innerText = `"${roseMemories[index].text}"`;
+                memoryBox.classList.remove('opacity-0', 'scale-95');
+            }, 200);
+
+            playHarpNote(659.25); // E5 gentle chime
+        }
+
+        /* --- 3. VIRTUAL HUG MODAL --- */
+        function sendVirtualHug() {
+            const modal = document.getElementById('hug-modal');
+            const modalCard = document.getElementById('hug-modal-card');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalCard.classList.remove('scale-90');
+            modalCard.classList.add('scale-100');
+
+            for (let i = 0; i < 15; i++) {
+                petals.push(new Petal());
+            }
+
+            playSweetArpeggio();
+        }
+
+        function closeHugModal() {
+            const modal = document.getElementById('hug-modal');
+            const modalCard = document.getElementById('hug-modal-card');
+
+            modalCard.classList.remove('scale-100');
+            modalCard.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        /* --- 4. LIGHTS TOGGLE --- */
+        let lightsOn = false;
+        function toggleLights() {
+            const overlay = document.getElementById('ambient-overlay');
+            const btn = document.getElementById('btn-lights');
+
+            lightsOn = !lightsOn;
+
+            if (lightsOn) {
+                overlay.classList.add('romantic-lights', 'opacity-100');
+                btn.classList.add('bg-yellow-200', 'text-amber-950');
+            } else {
+                overlay.classList.remove('opacity-100');
+                btn.classList.remove('bg-yellow-200', 'text-amber-950');
+            }
+        }
+
+        /* --- 5. SWEET ROMANTIC HARP & MUSIC BOX SYNTHESIZER --- */
+        let audioCtx = null;
+        let isPlayingMusic = false;
+        let musicLoop = null;
+
+        // Frequencies for a soft romantic music box chord progression in G Major
+        // G3, B3, D4, G4, B4, D5, E5, F#5
+        const romanticMelody = [
+            { freq: 392.00, delay: 0 },    // G4
+            { freq: 493.88, delay: 300 },  // B4
+            { freq: 587.33, delay: 600 },  // D5
+            { freq: 659.25, delay: 900 },  // E5
+            { freq: 587.33, delay: 1400 }, // D5
+            { freq: 493.88, delay: 1800 }, // B4
+            { freq: 440.00, delay: 2200 }, // A4
+            { freq: 392.00, delay: 2600 }, // G4
+            { freq: 523.25, delay: 3100 }, // C5
+            { freq: 659.25, delay: 3500 }, // E5
+            { freq: 783.99, delay: 3900 }, // G5
+            { freq: 659.25, delay: 4400 }  // E5
+        ];
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Soft music box / harp tone generator
+        function playHarpNote(freq, timeOffset = 0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime + timeOffset;
+
+            // Primary fundamental sine wave (pure and soft)
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            // Subtle second harmonic for warm acoustic color
+            const oscHarmonic = audioCtx.createOscillator();
+            const gainHarmonic = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+
+            oscHarmonic.type = 'triangle';
+            oscHarmonic.frequency.setValueAtTime(freq * 2, now);
+
+            // Envelope: Soft attack, gentle exponential decay
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.15, now + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
+
+            gainHarmonic.gain.setValueAtTime(0, now);
+            gainHarmonic.gain.linearRampToValueAtTime(0.03, now + 0.05);
+            gainHarmonic.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+            osc.connect(gain);
+            oscHarmonic.connect(gainHarmonic);
+
+            gain.connect(audioCtx.destination);
+            gainHarmonic.connect(audioCtx.destination);
+
+            osc.start(now);
+            oscHarmonic.start(now);
+
+            osc.stop(now + 2.6);
+            oscHarmonic.stop(now + 1.3);
+        }
+
+        function playSweetArpeggio() {
+            playHarpNote(392.00, 0);    // G4
+            playHarpNote(493.88, 0.12); // B4
+            playHarpNote(587.33, 0.24); // D5
+            playHarpNote(783.99, 0.36); // G5
+        }
+
+        function startMelodyLoop() {
+            initAudio();
+            if (isPlayingMusic) return;
+
+            isPlayingMusic = true;
+            document.getElementById('music-text').innerText = "♫ Sonando Melodía Dulce";
+            document.getElementById('music-icon').classList.add('animate-spin');
+
+            function playSequence() {
+                if (!isPlayingMusic) return;
+                romanticMelody.forEach(note => {
+                    playHarpNote(note.freq, note.delay / 1000);
+                });
+            }
+
+            playSequence();
+            musicLoop = setInterval(() => {
+                if (isPlayingMusic) {
+                    playSequence();
+                }
+            }, 5000);
+        }
+
+        function stopMelodyLoop() {
+            isPlayingMusic = false;
+            if (musicLoop) clearInterval(musicLoop);
+            document.getElementById('music-text').innerText = "♫ Reproducción Melódica Dulce";
+            document.getElementById('music-icon').classList.remove('animate-spin');
+        }
+
+        function toggleMusic() {
+            if (isPlayingMusic) {
+                stopMelodyLoop();
+            } else {
+                startMelodyLoop();
+            }
+        }
+    </script>
+</body>
+</html>
